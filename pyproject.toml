@@ -26,4 +26,5 @@ dev = [
     "kaggle>=2.2.5",
     "pytest>=9.2.0",
     "ruff>=0.17.3",
+    "xlsxwriter>=3.3.1",
 ]

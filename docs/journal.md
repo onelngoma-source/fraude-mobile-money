@@ -44,6 +44,8 @@ Les clients honnêtes étant beaucoup plus nombreux que les fraudeurs, le coût 
 | Date de téléchargement | 2026-11-05 |
 
 Pour vérifier qu'un fichier téléchargé est identique : `sha256sum data/raw/*.csv` doit renvoyer la même empreinte.
+| Échantillonnage | Le fichier contient environ un quart de la simulation originale (selon la description officielle) |
+| Période | 744 steps d'une heure, soit 31 jours (la description indique 30 jours : incohérence à noter) |
 
 ## Dictionnaire des données
 
@@ -63,7 +65,7 @@ Une ligne correspond à une transaction. Période simulée : 744 heures (31 jour
 | isFraud | Cible : 1 = fraude, 0 = normale | |
 | isFlaggedFraud | Signalement par une règle existante (virements de plus de 200 000) | Règle métier, pas la vérité terrain |
 
-Point à vérifier dans la description officielle : avertissement des auteurs sur l'usage des colonnes de soldes pour la détection de fraude.
+Avertissement vérifié dans la description officielle : les transactions détectées comme fraudes sont annulées, les quatre colonnes de soldes ne doivent pas être utilisées pour la détection (voir D6).
 
 ## 3. Décisions
 
@@ -74,6 +76,7 @@ Point à vérifier dans la description officielle : avertissement des auteurs su
 | D3 | 2026-11-05 | Les données brutes ne sont jamais modifiées | Pouvoir toujours revenir à la source |
 | D4 | 2026-11-05 | DuckDB, Polars et Parquet pour manipuler les données | Rapides et économes en mémoire sur plus de 6 millions de lignes, sans serveur |
 | D5 | 2026-11-05 | Source des données : `ealaxi/paysim1` sur Kaggle (version d'avril 2017) | Publication originale de l'auteur du simulateur, la plus utilisée et la plus citée ; les nombreuses copies peuvent être modifiées ou de provenance inconnue |
+| D6 | 2026-11-05 | Les colonnes oldbalanceOrg, newbalanceOrig, oldbalanceDest et newbalanceDest ne sont jamais utilisées comme variables du modèle | Avertissement explicite des auteurs : les fraudes détectées sont annulées, ces soldes reflètent donc le traitement de la fraude (fuite de données). Conservées uniquement pour l'exploration |
 
 ## 4. Constats sur les données
 

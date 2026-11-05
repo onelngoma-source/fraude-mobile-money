@@ -30,6 +30,21 @@ Les clients honnêtes étant beaucoup plus nombreux que les fraudeurs, le coût 
 6. Les résultats sont reproductibles : versions figées, graines aléatoires fixées, étapes scriptées.
 7. Les limites sont documentées.
 
+## Provenance des données
+
+| Élément | Valeur |
+|---|---|
+| Source | Kaggle, jeu `ealaxi/paysim1` : https://www.kaggle.com/datasets/ealaxi/paysim1 |
+| Licence | CC BY-SA 4.0 (citation obligatoire, données dérivées sous la même licence) |
+| Fichier | `PS_20174392719_1491204439457_log.csv` |
+| Taille | 471 Mo (archive téléchargée : 178 Mo) |
+| Lignes | 6 362 621, soit 6 362 620 transactions et une ligne d'en-tête |
+| Colonnes | 11 : step, type, amount, nameOrig, oldbalanceOrg, newbalanceOrig, nameDest, oldbalanceDest, newbalanceDest, isFraud, isFlaggedFraud |
+| Empreinte SHA-256 | `16910f90577b0d981bf8ff289714510bb89bc71bff7d3f220f024e287e4eea6b` |
+| Date de téléchargement | 2026-11-05 |
+
+Pour vérifier qu'un fichier téléchargé est identique : `sha256sum data/raw/*.csv` doit renvoyer la même empreinte.
+
 ## 3. Décisions
 
 | N° | Date | Décision | Justification |
@@ -37,6 +52,8 @@ Les clients honnêtes étant beaucoup plus nombreux que les fraudeurs, le coût 
 | D1 | 2026-11-05 | L'exactitude n'est pas une métrique du projet | Dominée par la classe majoritaire (99,87 % sans rien détecter) |
 | D2 | 2026-11-05 | Python 3.12 | Version stable compatible avec LightGBM, SHAP et MLflow |
 | D3 | 2026-11-05 | Les données brutes ne sont jamais modifiées | Pouvoir toujours revenir à la source |
+| D4 | 2026-11-05 | DuckDB, Polars et Parquet pour manipuler les données | Rapides et économes en mémoire sur plus de 6 millions de lignes, sans serveur |
+| D5 | 2026-11-05 | Source des données : `ealaxi/paysim1` sur Kaggle (version d'avril 2017) | Publication originale de l'auteur du simulateur, la plus utilisée et la plus citée ; les nombreuses copies peuvent être modifiées ou de provenance inconnue |
 
 ## 4. Constats sur les données
 

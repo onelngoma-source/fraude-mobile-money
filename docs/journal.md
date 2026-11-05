@@ -45,6 +45,26 @@ Les clients honnêtes étant beaucoup plus nombreux que les fraudeurs, le coût 
 
 Pour vérifier qu'un fichier téléchargé est identique : `sha256sum data/raw/*.csv` doit renvoyer la même empreinte.
 
+## Dictionnaire des données
+
+Une ligne correspond à une transaction. Période simulée : 744 heures (31 jours). Données synthétiques générées par le simulateur PaySim à partir des journaux réels d'un service de mobile money africain.
+
+| Colonne | Signification | Remarques |
+|---|---|---|
+| step | Heure de la simulation (1 à 744) | Pas une vraie date ; l'heure de départ n'est pas connue |
+| type | CASH_IN, CASH_OUT, DEBIT, PAYMENT ou TRANSFER | |
+| amount | Montant de la transaction | Monnaie non précisée : unités monétaires |
+| nameOrig | Identifiant de l'expéditeur (C = client) | Anonyme |
+| oldbalanceOrg | Solde de l'expéditeur avant la transaction | Orthographe « Org » d'origine, conservée |
+| newbalanceOrig | Solde de l'expéditeur après la transaction | Décrit la situation après l'opération |
+| nameDest | Identifiant du destinataire (C = client, M = marchand) | |
+| oldbalanceDest | Solde du destinataire avant | Non renseigné pour les marchands |
+| newbalanceDest | Solde du destinataire après | Incohérences observées (H3) |
+| isFraud | Cible : 1 = fraude, 0 = normale | |
+| isFlaggedFraud | Signalement par une règle existante (virements de plus de 200 000) | Règle métier, pas la vérité terrain |
+
+Point à vérifier dans la description officielle : avertissement des auteurs sur l'usage des colonnes de soldes pour la détection de fraude.
+
 ## 3. Décisions
 
 | N° | Date | Décision | Justification |

@@ -46,6 +46,7 @@ Les clients honnêtes étant beaucoup plus nombreux que les fraudeurs, le coût 
 Pour vérifier qu'un fichier téléchargé est identique : `sha256sum data/raw/*.csv` doit renvoyer la même empreinte.
 | Échantillonnage | Le fichier contient environ un quart de la simulation originale (selon la description officielle) |
 | Période | 744 steps d'une heure, soit 31 jours (la description indique 30 jours : incohérence à noter) |
+| Méthode d'échantillonnage | Non documentée : on ne sait pas si le quart publié a été tiré par transaction ou par client. Conséquence possible : historiques de comptes incomplets (à mesurer) |
 
 ## Dictionnaire des données
 

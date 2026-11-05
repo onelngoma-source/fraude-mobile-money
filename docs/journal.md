@@ -45,7 +45,9 @@ Les clients honnêtes étant beaucoup plus nombreux que les fraudeurs, le coût 
 
 Pour vérifier qu'un fichier téléchargé est identique : `sha256sum data/raw/*.csv` doit renvoyer la même empreinte.
 | Échantillonnage | Le fichier contient environ un quart de la simulation originale (selon la description officielle) |
+
 | Période | 744 steps d'une heure, soit 31 jours (la description indique 30 jours : incohérence à noter) |
+
 | Méthode d'échantillonnage | Non documentée : on ne sait pas si le quart publié a été tiré par transaction ou par client. Conséquence possible : historiques de comptes incomplets (à mesurer) |
 
 ## Dictionnaire des données
@@ -81,6 +83,19 @@ Avertissement vérifié dans la description officielle : les transactions détec
 
 ## 4. Constats sur les données
 
+### Chiffres de référence (mesurés le 2026-11-05 lors de la conversion en Parquet)
+
+| Mesure | Valeur |
+|---|---|
+| Transactions | 6 362 620 |
+| Fraudes (isFraud = 1) | 8 213, soit 0,129 % (environ 1 sur 775) |
+| Signalements de l'ancienne règle (isFlaggedFraud = 1) | 16, soit au mieux 0,19 % des fraudes détectées |
+| Steps | De 1 à 743 (la documentation annonce 744) |
+| Types de transactions | 5 |
+| Valeurs vides (NULL) | 0 |
+| Somme des montants | 1 144 392 944 759,77 unités monétaires |
+| Taille | 494 Mo en CSV, 262 Mo en Parquet |
+
 ### Hypothèses issues de l'observation (à vérifier sur l'ensemble des données)
 
 | N° | Hypothèse | Observée sur | Statut |
@@ -88,3 +103,4 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | H1 | Les fraudes n'apparaissent que dans les types TRANSFER et CASH_OUT | Premières lignes et échantillon de 500 fraudes | À vérifier |
 | H2 | Une fraude vide entièrement le compte de l'expéditeur (montant égal au solde avant, solde après à 0) | Lignes 3 et 4 du fichier | À vérifier |
 | H3 | Les soldes du destinataire sont souvent incohérents avec le montant reçu (solde après à 0 malgré l'argent reçu) | Lignes 3 et 4 du fichier | À vérifier |
+| H4 | Les historiques des comptes sont incomplets ou très courts (chaque identifiant apparaît peu de fois) | Description officielle (un quart de la simulation) | À vérifier |

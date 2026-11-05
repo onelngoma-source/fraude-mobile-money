@@ -57,4 +57,10 @@ Pour vérifier qu'un fichier téléchargé est identique : `sha256sum data/raw/*
 
 ## 4. Constats sur les données
 
-*À compléter à partir de l'étape suivante.*
+### Hypothèses issues de l'observation (à vérifier sur l'ensemble des données)
+
+| N° | Hypothèse | Observée sur | Statut |
+|---|---|---|---|
+| H1 | Les fraudes n'apparaissent que dans les types TRANSFER et CASH_OUT | Premières lignes et échantillon de 500 fraudes | À vérifier |
+| H2 | Une fraude vide entièrement le compte de l'expéditeur (montant égal au solde avant, solde après à 0) | Lignes 3 et 4 du fichier | À vérifier |
+| H3 | Les soldes du destinataire sont souvent incohérents avec le montant reçu (solde après à 0 malgré l'argent reçu) | Lignes 3 et 4 du fichier | À vérifier |

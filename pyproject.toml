@@ -1,0 +1,29 @@
+[project]
+name = "fraude-mobile-money"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Onel NGOMA", email = "onelngoma@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=2.0.0",
+    "polars>=2.1.0",
+    "pyarrow>=26.0.1",
+]
+
+[project.scripts]
+fraude-mobile-money = "fraude_mobile_money:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.6.5",
+    "kaggle>=2.2.5",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]

@@ -82,8 +82,17 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | D6 | 2026-11-05 | Les colonnes oldbalanceOrg, newbalanceOrig, oldbalanceDest et newbalanceDest ne sont jamais utilisées comme variables du modèle | Avertissement explicite des auteurs : les fraudes détectées sont annulées, ces soldes reflètent donc le traitement de la fraude (fuite de données). Conservées uniquement pour l'exploration |
 | D7 | 2026-11-05 | Les analyses utilisent data/interim/paysim.parquet, produit par scripts/convertir_parquet.py | Copie exacte du CSV prouvée (totaux de contrôle et comparaison ligne par ligne), lecture beaucoup plus rapide |
 | D8 | 2026-11-06 | Les hypothèses sur la fraude (H1, H2, H3, H7) sont vérifiées uniquement sur les données d'entraînement, après la mise de côté du jeu de test | Toute observation faite sur le jeu de test influencerait nos choix et rendrait l'évaluation finale trop optimiste |
+| D9 | 2026-11-06 | Découpage temporel : jeu de développement = premiers steps jusqu'au step où le cumul atteint 80 % des transactions (coupure entre deux steps) ; jeu de test = steps suivants jusqu'au step 743 | Respect de l'ordre du temps ; le test couvre la fin de la période chargée et toute la période calme. Option « 7 derniers jours » écartée : trop peu de fraudes probables et une seule période représentée |
+| D9 (précision) | 2026-11-06 | Step de coupure = 355 (jour 15, 18 h). Développement : steps 1 à 355, 5 113 884 transactions (80,37 %). Test : steps 356 à 743, 1 248 736 transactions (19,63 %) | Application de la règle D9 sans ajustement après avoir vu le résultat |
+| D10 | 2026-11-06 | Les hyperparamètres sont choisis par validation croisée temporelle à l'intérieur du jeu de développement | Le jeu de test reste intact jusqu'à l'évaluation finale |
+| D11 | 2026-11-06 | Les résultats finaux sont présentés globalement et séparément pour la période chargée et la période calme | Le modèle est entraîné presque uniquement sur la période chargée ; un score global masquerait l'écart entre les deux |
+| D12 | 2026-11-06 | Jeu de test scellé : data/processed/test.parquet, lecture seule, jamais régénéré. Empreinte sha256 : 220c6c02cbf6ca807a43a95ac443e99a1aa4bdeef60b03408d3553624b344e36 | Prouver à la fin du projet que l'évaluation porte sur le fichier d'origine, intact |
+| D13 | 2026-11-06 | Toute opération qui apprend des données (normalisation, remplissage, seuils) est calculée sur la partie entraînement de chaque découpage, via un pipeline scikit-learn | Éviter les fuites de données, y compris pendant la validation croisée |
 
 ## 4. Constats sur les données
+
+### Constat : cycle quotidien
+En supposant que le step 1 correspond à minuit (déduction, non documentée) : creux entre 1 h et 6 h (minimum 1 241 transactions à 3 h), activité forte de 8 h à 19 h, pic à 18 h (647 814). L'heure est une variable candidate, connue au moment de la transaction.
 
 ### Chiffres de référence (mesurés le 2026-11-05 lors de la conversion en Parquet)
 
@@ -116,4 +125,4 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | H5 | Des valeurs manquantes sont déguisées en zéros (soldes des marchands non renseignés) | Documentation et contrôle (0 NULL malgré des soldes non renseignés) | À vérifier |
 | H6 | Tous les steps de 1 à 743 ne sont peut-être pas présents | Dernier step à 743 au lieu de 744 | **Réfutée** : les 743 steps sont présents (notebook 01) |
 | H7 | Les 16 signalements de l'ancienne règle sont tous des fraudes | Contrôle de conversion | À vérifier |
-
+| H8 | Les fraudes ont une répartition horaire différente des transactions normales | À vérifier sur le jeu de développement uniquement |

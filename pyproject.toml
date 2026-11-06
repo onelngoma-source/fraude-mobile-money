@@ -22,8 +22,10 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.4.0",
     "jupyterlab>=4.6.5",
     "kaggle>=2.2.5",
+    "matplotlib>=3.11.2",
     "pytest>=9.2.0",
     "ruff>=0.17.3",
     "xlsxwriter>=3.3.1",

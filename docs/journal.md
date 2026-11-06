@@ -80,6 +80,8 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | D4 | 2026-11-05 | DuckDB, Polars et Parquet pour manipuler les données | Rapides et économes en mémoire sur plus de 6 millions de lignes, sans serveur |
 | D5 | 2026-11-05 | Source des données : `ealaxi/paysim1` sur Kaggle (version d'avril 2017) | Publication originale de l'auteur du simulateur, la plus utilisée et la plus citée ; les nombreuses copies peuvent être modifiées ou de provenance inconnue |
 | D6 | 2026-11-05 | Les colonnes oldbalanceOrg, newbalanceOrig, oldbalanceDest et newbalanceDest ne sont jamais utilisées comme variables du modèle | Avertissement explicite des auteurs : les fraudes détectées sont annulées, ces soldes reflètent donc le traitement de la fraude (fuite de données). Conservées uniquement pour l'exploration |
+| D7 | 2026-11-05 | Les analyses utilisent data/interim/paysim.parquet, produit par scripts/convertir_parquet.py | Copie exacte du CSV prouvée (totaux de contrôle et comparaison ligne par ligne), lecture beaucoup plus rapide |
+| D8 | 2026-11-06 | Les hypothèses sur la fraude (H1, H2, H3, H7) sont vérifiées uniquement sur les données d'entraînement, après la mise de côté du jeu de test | Toute observation faite sur le jeu de test influencerait nos choix et rendrait l'évaluation finale trop optimiste |
 
 ## 4. Constats sur les données
 
@@ -95,6 +97,13 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | Valeurs vides (NULL) | 0 |
 | Somme des montants | 1 144 392 944 759,77 unités monétaires |
 | Taille | 494 Mo en CSV, 262 Mo en Parquet |
+### Répartition des transactions dans le temps (notebook 01, sans utiliser isFraud)
+
+- Volume horaire très irrégulier : moyenne 8 563, médiane 529, minimum 2, maximum 51 352.
+- Quatre périodes : jours 1-2 (16,2 % des transactions), jours 3-5 (0,6 %), jours 6-17 (77,3 %), jours 18-31 (5,9 %, volume environ 20 fois plus faible).
+- Le jour 31 est incomplet (272 transactions, arrêt au step 743).
+- Rythme quotidien probable (environ un pic par 24 steps) : à confirmer par la répartition par heure du jour.
+- Conséquence : la fin de la période ne ressemble pas au reste (changement de distribution), à prendre en compte pour le découpage entraînement/test.
 
 ### Hypothèses issues de l'observation (à vérifier sur l'ensemble des données)
 
@@ -104,3 +113,7 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | H2 | Une fraude vide entièrement le compte de l'expéditeur (montant égal au solde avant, solde après à 0) | Lignes 3 et 4 du fichier | À vérifier |
 | H3 | Les soldes du destinataire sont souvent incohérents avec le montant reçu (solde après à 0 malgré l'argent reçu) | Lignes 3 et 4 du fichier | À vérifier |
 | H4 | Les historiques des comptes sont incomplets ou très courts (chaque identifiant apparaît peu de fois) | Description officielle (un quart de la simulation) | À vérifier |
+| H5 | Des valeurs manquantes sont déguisées en zéros (soldes des marchands non renseignés) | Documentation et contrôle (0 NULL malgré des soldes non renseignés) | À vérifier |
+| H6 | Tous les steps de 1 à 743 ne sont peut-être pas présents | Dernier step à 743 au lieu de 744 | **Réfutée** : les 743 steps sont présents (notebook 01) |
+| H7 | Les 16 signalements de l'ancienne règle sont tous des fraudes | Contrôle de conversion | À vérifier |
+

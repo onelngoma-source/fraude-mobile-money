@@ -152,3 +152,20 @@ Développement : 3 963 fraudes sur 5 113 884 (0,077 %). Test : 4 250 fraudes sur
 
 | Résultat | 2026-11-21 | Régression logistique (référence) : PR-AUC moyenne 0,105, écart-type 0,081. Plis 1 à 3 : 0,145 à 0,190 ; plis 4 et 5 : environ 0,02. Toujours au-dessus du hasard (× 11 à × 119) | Chute probable due aux compteurs cumulés depuis le début des données, dont l'échelle dérive avec le temps |
 | D17 | 2026-11-21 | LightGBM réglé par Optuna (25 essais, échantillonneur TPE, graine 42) sur la PR-AUC moyenne des 5 plis ; nombre d'arbres réglé comme hyperparamètre, sans arrêt anticipé ; essais suivis dans MLflow | Corrige l'absence d'optimisation et de validation croisée du mémoire, sans réutiliser le pli de validation pour arrêter l'entraînement |
+
+| Résultat | 2026-11-21 | LightGBM réglé : PR-AUC moyenne 0,406 (écart-type 0,029), plis de 0,357 à 0,446, contre 0,105 (0,081) pour la régression logistique | Plateau autour de 0,40 sur les essais 12 à 25 |
+| Limite | 2026-11-21 | Meilleur n_estimators (100) à la borne basse, num_leaves (17) proche de la borne (15) | Gain attendu faible vu le plateau ; intervalle à élargir dans une version future |
+
+| Résultat | 2026-11-21 | Régression logistique (référence) : PR-AUC moyenne 0,105, écart-type 0,081. Plis 1 à 3 : 0,145 à 0,190 ; plis 4 et 5 : environ 0,02. Toujours au-dessus du hasard (× 11 à × 119) | Chute probable due aux compteurs cumulés depuis le début des données, dont l'échelle dérive avec le temps |
+
+| D17 | 2026-11-21 | LightGBM réglé par Optuna (25 essais, échantillonneur TPE, graine 42) sur la PR-AUC moyenne des 5 plis ; nombre d'arbres réglé comme hyperparamètre, sans arrêt anticipé ; essais suivis dans MLflow | Corrige l'absence d'optimisation et de validation croisée du mémoire, sans réutiliser le pli de validation pour arrêter l'entraînement |
+
+| D18 | 2026-11-21 | Calibration isotonique apprise sur les prédictions hors pli. Règle : alerter si probabilité calibrée × montant ≥ coût d'une vérification (5 000), sensibilité testée à 1 000, 20 000 et 50 000 | Minimise le coût attendu ; n'a de sens qu'avec des probabilités calibrées |
+
+| Résultat | 2026-11-21 | Calibration (pli 5) : probabilité moyenne 0,335 % brute, 0,199 % calibrée, pour 0,137 % réel ; Brier 0,001121 → 0,000978. PR-AUC 0,414 → 0,384 (paliers isotoniques) | Score brut pour le classement, probabilité calibrée pour la décision |
+| Résultat | 2026-11-21 | Règle à 5 000 (pli 5) : 9 091 alertes, 67 % des fraudes et 96 % du montant fraudé détectés, coût 72,8 M contre 690,9 M sans modèle (−89 %). Réduction encore de 70 % à 50 000 | Conclusion robuste au choix du coût |
+| Constat | 2026-11-21 | Variable la plus importante : heure (fraudes uniformes sur 24 h dans le simulateur). orig_nb_avant inutile (comptes émetteurs quasi uniques, H4 confirmée) | Artefacts de la simulation, à signaler dans le README |
+
+| Résultat final | 2026-11-21 | Test (évalué une seule fois, empreinte vérifiée) : PR-AUC 0,539 (hasard 0,003), rappel 69 %, 97 % du montant fraudé détecté, précision 19 %, coût −96 % (6 683 M → 272 M). Période chargée : PR-AUC 0,497, rappel 67 %, précision 5 %. Période calme : PR-AUC 0,576, rappel 70 %, précision 33 %. Sensibilité : −87 % à −98 % selon le coût d'une vérification | Rappel et part du montant détecté stables par rapport à la validation croisée |
+| Constat | 2026-11-21 | Calibration bonne en période chargée (0,185 % annoncé, 0,166 % réel), sous-estimation d'environ 2 fois en période calme (1,27 % contre 2,34 %) | Changement du taux de fraude, annoncé avant l'ouverture du test |
+| Constat | 2026-11-21 | 0 fraude hors périmètre dans le test | Le choix D14 n'a rien coûté sur cette période |

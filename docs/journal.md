@@ -88,8 +88,11 @@ Avertissement vérifié dans la description officielle : les transactions détec
 | D11 | 2026-11-06 | Les résultats finaux sont présentés globalement et séparément pour la période chargée et la période calme | Le modèle est entraîné presque uniquement sur la période chargée ; un score global masquerait l'écart entre les deux |
 | D12 | 2026-11-06 | Jeu de test scellé : data/processed/test.parquet, lecture seule, jamais régénéré. Empreinte sha256 : 220c6c02cbf6ca807a43a95ac443e99a1aa4bdeef60b03408d3553624b344e36 | Prouver à la fin du projet que l'évaluation porte sur le fichier d'origine, intact |
 | D13 | 2026-11-06 | Toute opération qui apprend des données (normalisation, remplissage, seuils) est calculée sur la partie entraînement de chaque découpage, via un pipeline scikit-learn | Éviter les fuites de données, y compris pendant la validation croisée |
+| D14 | 2026-11-06 | Le modèle ne traite que les TRANSFER et CASH_OUT. L'évaluation finale porte sur tout le jeu de test : les transactions des autres types sont comptées comme non signalées | Sur le développement, ces deux types contiennent 100 % des fraudes pour 44 % des transactions (une fraude pour 565 au lieu de 1 290). Évaluer sur tout le test évite de masquer d'éventuelles fraudes hors périmètre |
+| Limite | 2026-11-06 | Des fraudeurs réels pourraient se reporter sur PAYMENT, CASH_IN ou DEBIT | En production, prévoir une surveillance des autres types et un élargissement du périmètre si des fraudes y apparaissent |
 
 ## 4. Constats sur les données
+
 
 ### Constat : cycle quotidien
 En supposant que le step 1 correspond à minuit (déduction, non documentée) : creux entre 1 h et 6 h (minimum 1 241 transactions à 3 h), activité forte de 8 h à 19 h, pic à 18 h (647 814). L'heure est une variable candidate, connue au moment de la transaction.
@@ -114,6 +117,11 @@ En supposant que le step 1 correspond à minuit (déduction, non documentée) : 
 - Rythme quotidien probable (environ un pic par 24 steps) : à confirmer par la répartition par heure du jour.
 - Conséquence : la fin de la période ne ressemble pas au reste (changement de distribution), à prendre en compte pour le découpage entraînement/test.
 
+## Découpage effectué (scripts/decouper_dev_test.py)
+Développement : 5 113 884 transactions (80,37 %), steps 1 à 355.
+Test : 1 248 736 transactions (19,63 %), steps 356 à 743.
+6 contrôles OK : lignes, steps, somme des montants, comparaison ligne par ligne dans les deux sens. Aucun contrôle ne lit isFraud dans le test.
+
 ### Hypothèses issues de l'observation (à vérifier sur l'ensemble des données)
 
 | N° | Hypothèse | Observée sur | Statut |
@@ -126,3 +134,21 @@ En supposant que le step 1 correspond à minuit (déduction, non documentée) : 
 | H6 | Tous les steps de 1 à 743 ne sont peut-être pas présents | Dernier step à 743 au lieu de 744 | **Réfutée** : les 743 steps sont présents (notebook 01) |
 | H7 | Les 16 signalements de l'ancienne règle sont tous des fraudes | Contrôle de conversion | À vérifier |
 | H8 | Les fraudes ont une répartition horaire différente des transactions normales | À vérifier sur le jeu de développement uniquement |
+
+| H1 | ... | Confirmée sur le développement : 100 % des 3 963 fraudes sont en TRANSFER (1 972) ou CASH_OUT (1 991). 0 fraude parmi les 2 875 415 PAYMENT, CASH_IN et DEBIT. Propriété du simulateur, pas forcément de la réalité |
+| H9 | 2026-11-06 | Chaque fraude est une paire : un TRANSFER vers un compte du fraudeur, puis un CASH_OUT du même montant | À vérifier sur le jeu de développement |
+
+### Constat : taux de fraude différent entre développement et test
+Développement : 3 963 fraudes sur 5 113 884 (0,077 %). Test : 4 250 fraudes sur 1 248 736 (0,34 %), déduit par soustraction du total de 8 213 établi avant le découpage. Aucune autre information du test n'a été consultée. Conséquences : la précision sera mécaniquement plus élevée sur le test, et les probabilités du modèle risquent d'être sous-estimées. À prendre en compte pour la calibration et l'interprétation des résultats.
+
+
+
+| H2 | ... | Confirmée : 98,13 % des fraudes vident le compte, 0 % des transactions normales. Repose sur les soldes, donc inutilisable (D6) |
+| H5 | ... | Confirmée : 47,73 % des transactions normales partent d'un solde nul, les zéros signifient souvent « inconnu » |
+| H9 | ... | Confirmée : 1 993 paires TRANSFER puis CASH_OUT pour 1 972 transferts frauduleux. Inutilisable comme variable (le retrait est postérieur) |
+| Constat | 2026-11-21 | Montant maximal des fraudes = 10 000 000 exactement : plafond du simulateur. Variable montant_10m conservée, signalée comme artefact |
+| D15 | 2026-11-21 | Variables : type, heure, montant, historique des comptes émetteur et destinataire calculé jusqu'au step précédent | Uniquement des informations connues au moment de la transaction |
+| D16 | 2026-11-21 | Validation croisée : 6 blocs consécutifs, 5 plis, entraînement sur le passé et validation sur le bloc suivant ; métrique principale PR-AUC | Respect de l'ordre du temps |
+
+| Résultat | 2026-11-21 | Régression logistique (référence) : PR-AUC moyenne 0,105, écart-type 0,081. Plis 1 à 3 : 0,145 à 0,190 ; plis 4 et 5 : environ 0,02. Toujours au-dessus du hasard (× 11 à × 119) | Chute probable due aux compteurs cumulés depuis le début des données, dont l'échelle dérive avec le temps |
+| D17 | 2026-11-21 | LightGBM réglé par Optuna (25 essais, échantillonneur TPE, graine 42) sur la PR-AUC moyenne des 5 plis ; nombre d'arbres réglé comme hyperparamètre, sans arrêt anticipé ; essais suivis dans MLflow | Corrige l'absence d'optimisation et de validation croisée du mémoire, sans réutiliser le pli de validation pour arrêter l'entraînement |

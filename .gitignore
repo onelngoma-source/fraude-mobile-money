@@ -11,5 +11,7 @@ wheels/
 data/
 models/*
 mlruns/
-.envmlflow.db
+.env
 !models/modele_final.joblib
+
+mlflow.db

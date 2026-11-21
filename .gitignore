@@ -9,6 +9,7 @@ wheels/
 # Virtual environments
 .venv
 data/
-models/
+models/*
 mlruns/
 .envmlflow.db
+!models/modele_final.joblib

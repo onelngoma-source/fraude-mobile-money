@@ -9,12 +9,15 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "duckdb>=2.0.0",
+    "fastapi>=0.165.0",
+    "httpx>=0.28.1",
     "lightgbm>=4.7.0",
     "mlflow>=3.18.0",
     "optuna>=5.1.0",
     "polars>=2.1.0",
     "pyarrow>=26.0.1",
     "scikit-learn>=1.9.1",
+    "uvicorn>=0.54.0",
 ]
 
 [project.scripts]
@@ -25,6 +28,9 @@ requires = ["uv_build>=0.13.7,<0.14.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
+demo = [
+    "streamlit>=1.67.0",
+]
 dev = [
     "ipykernel>=7.4.0",
     "jupyterlab>=4.6.5",
@@ -34,3 +40,6 @@ dev = [
     "ruff>=0.17.3",
     "xlsxwriter>=3.3.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

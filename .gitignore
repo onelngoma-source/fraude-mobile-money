@@ -11,4 +11,4 @@ wheels/
 data/
 models/
 mlruns/
-.env
+.envmlflow.db
